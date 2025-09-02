@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>MANOS EN LA MASA — Pedido</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f7efe2; margin:0; padding:20px; }
+    h1 { text-align:center; }
+    .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); }
+    .card {
+      background:#fff8ea;
+      border:1px solid #e9d6b8;
+      border-radius:12px;
+      padding:16px;
+      box-shadow:0 4px 10px rgba(0,0,0,.05);
+    }
+    .card h3 { margin:0 0 8px; font-size:1.2rem; color:#3b2f2f; }
+    .card p { margin:0 0 12px; font-size:0.9rem; color:#6b5b5b; }
+    .input, select {
+      width:100%; padding:8px; border:1px solid #d7c7a8;
+      border-radius:8px; font-size:1rem; margin-top:6px;
+    }
+    .total { margin-top:20px; font-weight:800; text-align:right; font-size:1.1rem; }
+    .btn { margin-top:20px; background:#a4562b; color:white; border:0; padding:12px 20px; border-radius:10px; cursor:pointer; font-weight:700; }
+    label { font-weight:600; display:block; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <h1>MANOS EN LA MASA</h1>
+  <p style="text-align:center;">Tomamos pedidos hasta el <strong>miércoles a las 14:00</strong></p>
+
+  <form id="pedidoForm">
+    <div class="card">
+      <label>Nombre y apellido *</label>
+      <input type="text" id="nombre" class="input" required>
+
+      <label>Teléfono *</label>
+      <input type="text" id="telefonoCliente" class="input" required>
+
+      <label>Dirección (opcional)</label>
+      <input type="text" id="direccion" class="input">
+
+      <label>Entrega *</label>
+      <select id="entrega" class="input" required>
+        <option value="SÁBADO">SÁBADO</option>
+        <option value="DOMINGO">DOMINGO</option>
+        <option value="A CONVENIR">A CONVENIR</option>
+      </select>
+    </div>
+
+    <h2 style="margin-top:30px;">Variedades</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Clásicos</h3>
+        <p>Jamón y queso</p>
+        <input type="number" min="0" max="30" class="input qty" data-label="Clásicos (jamón y queso)" placeholder="0">
+      </div>
+
+      <div class="card">
+        <h3>Verdes cremosos</h3>
+        <p>Espinaca, ricota y queso</p>
+        <input type="number" min="0" max="30" class="input qty" data-label="Verdes cremosos (espinaca, ricota y queso)" placeholder="0">
+      </div>
+
+      <div class="card">
+        <h3>Soleados</h3>
+        <p>Zapallo horneado y muzza</p>
+        <input type="number" min="0" max="30" class="input qty" data-label="Soleados (zapallo y muzza)" placeholder="0">
+      </div>
+
+      <div class="card">
+        <h3>Asador</h3>
+        <p>Vacío y provoleta</p>
+        <input type="number" min="0" max="30" class="input qty" data-label="Asador (vacío y provoleta)" placeholder="0">
+      </div>
+
+      <div class="card">
+        <h3>Queso supremo</h3>
+        <p>4 quesos</p>
+        <input type="number" min="0" max="30" class="input qty" data-label="Queso supremo (4 quesos)" placeholder="0">
+      </div>
+
+      <div class="card">
+        <h3>Mix popecha</h3>
+        <p>Degustación variada</p>
+        <input type="number" min="0" max="30" class="input qty" data-label="Mix popecha (degustación)" placeholder="0">
+      </div>
+    </div>
+
+    <div class="total" id="totalPacks">Total packs: 0</div>
+
+    <button class="btn" type="submit">Enviar por WhatsApp</button>
+  </form>
+
+  <script>
+    const inputs = document.querySelectorAll('.qty');
+    const totalEl = document.getElementById('totalPacks');
+
+    function updateTotal() {
+      let total = 0;
+      inputs.forEach(i => total += parseInt(i.value) || 0);
+      totalEl.textContent = 'Total packs: ' + total;
+    }
+
+    inputs.forEach(i => i.addEventListener('input', updateTotal));
+
+    document.getElementById('pedidoForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const telCliente = document.getElementById('telefonoCliente').value.trim();
+      const direccion = document.getElementById('direccion').value.trim();
+      const entrega = document.getElementById('entrega').value;
+
+      if (!nombre || !telCliente) {
+        alert("Por favor completá nombre y teléfono.");
+        return;
+      }
+
+      let total = 0;
+      let resumen = "📝 Pedido — MANOS EN LA MASA%0A";
+      resumen += "Cliente: " + nombre + "%0A";
+      resumen += "Tel: " + telCliente + "%0A";
+      if (direccion) resumen += "Dirección: " + direccion + "%0A";
+      resumen += "Entrega: " + entrega + "%0A";
+      resumen += "--------------------%0A";
+
+      inputs.forEach(i => {
+        const val = parseInt(i.value) || 0;
+        if (val > 0) {
+          resumen += "• " + i.dataset.label + ": " + val + "%0A";
+          total += val;
+        }
+      });
+
+      if (total === 0) {
+        alert("Por favor seleccioná al menos 1 pack.");
+        return;
+      }
+      resumen += "Total packs: " + total;
+
+      const telefonoNegocio = "5492613073115";
+      const url = "https://wa.me/" + telefonoNegocio + "?text=" + resumen;
+      window.open(url, "_blank");
+    });
+  </script>
+</body>
+</html>
